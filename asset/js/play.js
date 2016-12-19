@@ -19,7 +19,7 @@ var playState = function (game) {
     this.create = function () {
         game.stage.disableVisibilityChange = true;
 
-        socket = io();
+        socket = io.connect('http://localhost:3000',{'reconnection':false} );
         cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
         tileMap.addTilesetImage('tileset', 'tile', d, d);
@@ -52,11 +52,11 @@ var playState = function (game) {
                 var e = event || window.event
                     || arguments.callee.caller.arguments[0];
                 if (e && e.keyCode == 38) { // 按 up
-                    socket.emit('message', {type: 5, flag: flag, num: num});
+                    socket.emit('msg', {type: 5, flag: flag, num: num});
                 }
                 if (e && e.keyCode == 40) { // 按 down
                     if (chick.chickMove(players[num], 40)) {
-                        socket.emit('message', {
+                        socket.emit('msg', {
                             type: 1,
                             flag: flag,
                             num: num,
@@ -67,7 +67,7 @@ var playState = function (game) {
                 }
                 if (e && e.keyCode == 37) { // 按 left
                     if (chick.chickMove(players[num], 37)) {
-                        socket.emit('message', {
+                        socket.emit('msg', {
                             type: 1,
                             flag: flag,
                             num: num,
@@ -79,7 +79,7 @@ var playState = function (game) {
 
                 if (e && e.keyCode == 39) { // 按 right
                     if (chick.chickMove(players[num], 39)) {
-                        socket.emit('message', {
+                        socket.emit('msg', {
                             type: 1,
                             flag: flag,
                             num: num,
@@ -101,6 +101,7 @@ var playState = function (game) {
             //gameover = false;
             //socket.emit('restart',{flag:flag,num:num});
             //game.state.start('menu');
+            //location.reload(true);
         });
 
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
@@ -108,20 +109,25 @@ var playState = function (game) {
             num = obj.num;
             console.log(obj.flag);
             console.log(obj.num);
-            socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
+            socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
             game.time.events.loop(500, function () {
                 if (chick.chickMove(players[num], 40)) {
-                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + 10});
+                    socket.emit('msg', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + 10});
                 } else {
-                    socket.emit('message', {type: 2, flag: flag, num: num});
-                    socket.emit('message', {type: 3, flag: flag, num: num});
-                    socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
+                    socket.emit('msg', {type: 2, flag: flag, num: num});
+                    socket.emit('msg', {type: 3, flag: flag, num: num});
+                    socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
                 }
             });
 
             game.time.events.start();
         });
-        socket.on('message', function (obj) {
+
+        socket.on('new', function (obj) {
+            players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
+        });
+
+        socket.on('msg', function (obj) {
             switch (obj.type) {
                 case 1://方块位置变化
                     players[obj.num].x = obj.x;
@@ -138,11 +144,11 @@ var playState = function (game) {
                     if (obj.num == num) {
                         chickLine = chick.chickLine(players[num]);
                         if (chickLine.length != 0) {
-                            socket.emit('message', {type: 4, flag: flag, line: chickLine});
+                            socket.emit('msg', {type: 4, flag: flag, line: chickLine});
                             chickLine.splice(0, chickLine.length);
                         }
                         if (chick.chickDie()) {
-                            socket.emit('message', {type: 7, flag: flag});
+                            socket.emit('msg', {type: 7, flag: flag});
                         }
                     }
                     break;
@@ -171,9 +177,10 @@ var playState = function (game) {
                     text.lineSpacing = 1;
                     game.add.tween(text).to({y:game.height/2},2000,Phaser.Easing.Elastic.Out,true,0,0,false);
                     var restart_btn = game.add.button(game.width/2,game.height/2 + 50,'start_btn', function () {
-                        gameover = false;
-                        socket.emit('restart',{flag:flag,num:num});
-                        game.state.start("menu");
+                        //gameover = false;
+                        //socket.emit('restart',{flag:flag,num:num});
+                        //game.state.start("menu");
+                        location.reload(true);
                     });
                     restart_btn.scale.setTo(0.5);
                     restart_btn.anchor.setTo(0.5);
