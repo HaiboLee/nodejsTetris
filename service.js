@@ -39,20 +39,16 @@ io.on('connection', function (socket) {
         }
     });
 
-    socket.on('leave', function (obj) {
+    socket.on('restart', function (obj) {
         onlineUsers--;
-        if (obj.flag != undefined) {
-            for (var i in room[obj.flag]) {
-                room[obj.flag][i].emit('leave', obj);
-            }
+            //for (var i in room[obj.flag]) {
+            //    room[obj.flag][i].emit('restart', obj);
+            //}
             delete room[obj.flag][obj.num];
             if (getJsonSize(room[obj.flag]) == 0) {
                 delete room[obj.flag];
             }
-        } else {
-            removeByValue(waitRoom, socket);
-        }
-        console.log('有玩家离开，当前在线玩家:' + onlineUsers + "房间数量:" + getJsonSize(room));
+        console.log('重新开始:' + onlineUsers + "房间数量:" + getJsonSize(room));
     });
 
     socket.on('disconnect', function () {

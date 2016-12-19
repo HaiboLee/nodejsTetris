@@ -10,8 +10,9 @@ var loadState = function (game) {
         game.load.image('three','asset/img/three.png');
         game.load.image('four','asset/img/four.png');
         game.load.image('five','asset/img/five.png');
+        game.load.image('start_btn','asset/img/start-button.png');
     }
     this.create = function () {
-        game.state.start('play');
+        game.state.start('menu');
     }
 }

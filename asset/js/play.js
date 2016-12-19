@@ -34,11 +34,8 @@ var playState = function (game) {
         drawMap.drawGrid();
         drawMap.drawBound(3);
 
-        tileMap.putTile(4, 50, 30, layer1);
+        //tileMap.putTile(4, 50, 30, layer1);
         tileMap.fill(0, 10, 49, 77, 1, layer1);
-        game.input.onDown.add(function () {
-            // tileMap.putTile(1,10,481,layer1);
-        });
         // 玩家头像位置
         var dd = (game.width - 2 * r) / 5;
 
@@ -101,9 +98,10 @@ var playState = function (game) {
         }
 
         game.input.onDown.add(function () {
-            //game.time.events.stop(false);
+            //gameover = false;
+            //socket.emit('restart',{flag:flag,num:num});
+            //game.state.start('menu');
         });
-
 
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
             flag = obj.flag;
@@ -120,9 +118,10 @@ var playState = function (game) {
                     socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
                 }
             });
+
+            game.time.events.start();
         });
         socket.on('message', function (obj) {
-            console.log(obj);
             switch (obj.type) {
                 case 1://方块位置变化
                     players[obj.num].x = obj.x;
@@ -161,6 +160,24 @@ var playState = function (game) {
                 case 7://游戏结束
                     gameover = true;
                     game.time.events.stop(false);
+                    var style = { font: "50px '微软雅黑'", fill: "#ccc", align: "center" };
+                    var text = game.add.text(game.width/2, game.height, 'GAME  OVER!', style);
+                    text.setShadow(1, 1, "#00FFFF", 0);
+                    text.addColor("#00fffff", 1);
+                    text.addColor("#000000", 6);
+                    text.addColor("#00FF00", 7);
+                    text.anchor.set(0.5);
+                    text.rotation  = 50;
+                    text.lineSpacing = 1;
+                    game.add.tween(text).to({y:game.height/2},2000,Phaser.Easing.Elastic.Out,true,0,0,false);
+                    var restart_btn = game.add.button(game.width/2,game.height/2 + 50,'start_btn', function () {
+                        gameover = false;
+                        socket.emit('restart',{flag:flag,num:num});
+                        game.state.start("menu");
+                    });
+                    restart_btn.scale.setTo(0.5);
+                    restart_btn.anchor.setTo(0.5);
+
                     break;
 
             }
