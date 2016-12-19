@@ -16,21 +16,22 @@ var roomSize = 2;
 
 io.on('connection', function (socket) {
     onlineUsers++;
-    console.log('有用户加入在线用户:' + onlineUsers);
+
     waitRoom.push(socket);
     if (waitRoom.length == roomSize) {
         var f = parseInt(10000 * Math.random()).toString();
-        var wr = [];
+        var wr = {};
         for (var i = 0; i < waitRoom.length; i++) {
-            wr.push(waitRoom[i]);
+            wr[i] = waitRoom[i];
         }
         waitRoom.splice(0, waitRoom.length);
-        for (var i = 0; i < wr.length; i++) {
-            wr[i].emit('j', {flag: f, num: i});
+
+        for(var s in wr){
+            wr[s].emit('j',{flag:f,num:s});
         }
         room[f] = wr;
-
     }
+    console.log('有新用户加入在线用户:' + onlineUsers + "房间数:" + getJsonSize(room));
 
     socket.on('message', function (obj) {
         for (var i in room[obj.flag]) {
@@ -40,14 +41,16 @@ io.on('connection', function (socket) {
 
     socket.on('leave', function (obj) {
         onlineUsers--;
-        if (obj.flag != null) {
+        if (obj.flag != undefined) {
             for (var i in room[obj.flag]) {
                 room[obj.flag][i].emit('leave', obj);
             }
-            removeByValue(room[obj.flag], obj.num);
-            if(room[obj.flag].length == 0){
+            delete room[obj.flag][obj.num];
+            if(getJsonSize(room[obj.flag]) == 0){
                 delete room[obj.flag];
             }
+        }else{
+            removeByValue(waitRoom,socket);
         }
         console.log('有玩家离开，当前在线玩家:' + onlineUsers + "房间数量:" + getJsonSize(room));
     });

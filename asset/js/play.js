@@ -2,9 +2,8 @@ var playState = function (game) {
     var flag, num, players = {};
     var d = 10, r = 100;
     var drawMap, chick, createBox;
-    var tileMap, layer1, mybox;
+    var tileMap, layer1;
     var stats, cursors;
-    // var x = d * 20, y = r + d;
     var chickLine = null;
     var socket;
     this.init = function () {
@@ -44,7 +43,6 @@ var playState = function (game) {
         var dd = (game.width - 2 * r) / 5;
 
         var begindd = r + dd / 2;
-        //mybox = createBox.createMyBox(3, begindd, r);
         createBox.createUser('one', begindd, r / 2);
         createBox.createUser('two', begindd + dd, r / 2);
         createBox.createUser('three', begindd + 2 * dd, r / 2);
@@ -56,35 +54,25 @@ var playState = function (game) {
             var e = event || window.event
                 || arguments.callee.caller.arguments[0];
             if (e && e.keyCode == 38) { // 按 up
-                //chick.chickAngle(mybox)
-                //sendMsg("a:" + flag + ":" + num);
-                socket.emit('message',{type:5,flag:flag,num:num});
+                socket.emit('message', {type: 5, flag: flag, num: num});
             }
             if (e && e.keyCode == 40) { // 按 down
                 if (chick.chickMove(players[num], 40)) {
-                    //mybox.y += 10;
-                    //sendMsg("m:" + flag + ":" + num + ":" + players[num].x + ":" + (players[num].y + d));
-                    socket.emit('message',{type:1,flag:flag,num:num,x:players[num].x,y:players[num].y + d});
+                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + d});
                 }
             }
             if (e && e.keyCode == 37) { // 按 left
                 if (chick.chickMove(players[num], 37)) {
-                    //mybox.x -= d;
-                    //sendMsg("m:" + flag + ":" + num + ":" + (players[num].x - d) + ":" + players[num].y);
-                    socket.emit('message',{type:1,flag:flag,num:num,x:players[num].x - d,y:players[num].y});
+                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x - d, y: players[num].y});
                 }
             }
 
             if (e && e.keyCode == 39) { // 按 right
                 if (chick.chickMove(players[num], 39)) {
-                    //mybox.x += d
-                    //sendMsg("m:" + flag + ":" + num + ":" + (players[num].x + d) + ":" + players[num].y);
-                    socket.emit('message',{type:1,flag:flag,num:num,x:players[num].x + d,y:players[num].y});
+                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x + d, y: players[num].y});
                 }
             }
             if (e && e.keyCode == 65) {
-                //mybox.y -= 10
-                //sendMsg("m:" + flag + ":" + num + ":" + players[num].x + ":" + (players[num].y - 10));
             }
         }
 
@@ -94,7 +82,7 @@ var playState = function (game) {
         }
 
         game.input.onDown.add(function () {
-            socket.emit('send','ok');
+            socket.emit('send', 'ok');
         });
 
 
@@ -103,22 +91,22 @@ var playState = function (game) {
             num = obj.num;
             console.log(obj.flag);
             console.log(obj.num);
-            socket.emit('message',{type:0,flag:flag,num:num,bid:Math.floor(Math.random() * 4)});
+            socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
             setInterval(function () {
                 if (chick.chickMove(players[num], 40)) {
-                    socket.emit('message',{type:1,flag:flag,num:num,x:players[num].x,y:players[num].y + 10});
+                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + 10});
                 } else {
-                    socket.emit('message',{type:2,flag:flag,num:num});
-                    socket.emit('message',{type:3,flag:flag,num:num});
-                    socket.emit('message',{type:0,flag:flag,num:num,bid:Math.floor(Math.random() * 4)});
+                    socket.emit('message', {type: 2, flag: flag, num: num});
+                    socket.emit('message', {type: 3, flag: flag, num: num});
+                    socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
                 }
             }, 500);
         });
 
         socket.on('message', function (obj) {
-            switch (obj.type){
+            switch (obj.type) {
                 case 0://产生新方块
-                    players[obj.num] = createBox.createMyBox(obj.bid,begindd + obj.num *dd , r);
+                    players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.num * dd, r);
                     break;
                 case 1://方块位置变化
                     players[obj.num].x = obj.x;
@@ -126,11 +114,12 @@ var playState = function (game) {
                     break;
                 case 2://方块停止运动绘制瓦片 并检查是否得分
                     drawMap.drawBox(players[obj.num]);
-                    chickLine = chick.chickLine(players[num]);
-                    if (chickLine.length != 0) {
-                        //sendMsg("g:" + flag + ":" + chickLine.toString())
-                        socket.emit('message',{type:4,flag:flag,line:chickLine});
-                        chickLine.splice(0, chickLine.length);
+                    if (obj.num == num) {
+                        chickLine = chick.chickLine(players[num]);
+                        if (chickLine.length != 0) {
+                            socket.emit('message', {type: 4, flag: flag, line: chickLine});
+                            chickLine.splice(0, chickLine.length);
+                        }
                     }
                     break;
                 case 3://销毁方块
@@ -147,7 +136,7 @@ var playState = function (game) {
         });
 
         socket.on('leave', function (obj) {
-            removeByValue(players,players[obj.num]);
+            removeByValue(players, players[obj.num]);
             players[obj.num].destroy();
         })
 
@@ -156,14 +145,13 @@ var playState = function (game) {
         stats.update();
     }
 
-    function leave(){
-        socket.emit('leave',{flag:flag,num:num});
-        //socket.close();
+    function leave() {
+        socket.emit('leave', {flag: flag, num: num});
     }
 
     function removeByValue(array, val) {
-        for(var i=0; i<array.length; i++) {
-            if(array[i] == val) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i] == val) {
                 array.splice(i, 1);
                 break;
             }
