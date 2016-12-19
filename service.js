@@ -26,8 +26,8 @@ io.on('connection', function (socket) {
         }
         waitRoom.splice(0, waitRoom.length);
 
-        for(var s in wr){
-            wr[s].emit('j',{flag:f,num:s});
+        for (var s in wr) {
+            wr[s].emit('j', {flag: f, num: s});
         }
         room[f] = wr;
     }
@@ -46,16 +46,44 @@ io.on('connection', function (socket) {
                 room[obj.flag][i].emit('leave', obj);
             }
             delete room[obj.flag][obj.num];
-            if(getJsonSize(room[obj.flag]) == 0){
+            if (getJsonSize(room[obj.flag]) == 0) {
                 delete room[obj.flag];
             }
-        }else{
-            removeByValue(waitRoom,socket);
+        } else {
+            removeByValue(waitRoom, socket);
         }
         console.log('有玩家离开，当前在线玩家:' + onlineUsers + "房间数量:" + getJsonSize(room));
     });
 
-
+    socket.on('disconnect', function () {
+        onlineUsers--;
+        for (var i = 0; i < waitRoom.length; i++) {
+            if (socket == waitRoom[i]) {
+                waitRoom.splice(i, 1);
+                console.log('等候室用户离开:' + onlineUsers);
+                return;
+            }
+        }
+        var flag = null, num = null;
+        for (var i in room) {
+            for (var j in room[i]) {
+                if (room[i][j] == socket) {
+                    flag = i;
+                    num = j;
+                }
+            }
+        }
+        if (flag != null) {
+            for (var a in room[flag]) {
+                room[flag][a].emit('message', {type: 6, num: num});
+            }
+            delete room[flag][num];
+            if (getJsonSize(room[flag]) == 0) {
+                delete room[flag];
+            }
+        }
+        console.log('有玩家离开，当前在线玩家:' + onlineUsers + "房间数量:" + getJsonSize(room))
+    });
 });
 
 function removeByValue(array, val) {
@@ -69,7 +97,7 @@ function removeByValue(array, val) {
 
 function getJsonSize(obj) {
     var i = 0;
-    for(var o in obj){
+    for (var o in obj) {
         i++;
     }
     return i;

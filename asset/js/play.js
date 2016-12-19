@@ -77,12 +77,12 @@ var playState = function (game) {
         }
 
         window.onbeforeunload = function () {//关闭窗口
-            leave();
-            console.log('关闭窗口');
+            //leave();
+           // console.log('关闭窗口');
         }
 
         game.input.onDown.add(function () {
-            socket.emit('send', 'ok');
+            //socket.emit('send', 'ok');
         });
 
 
@@ -92,7 +92,7 @@ var playState = function (game) {
             console.log(obj.flag);
             console.log(obj.num);
             socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
-            setInterval(function () {
+            game.time.events.loop(500, function () {
                 if (chick.chickMove(players[num], 40)) {
                     socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + 10});
                 } else {
@@ -100,17 +100,21 @@ var playState = function (game) {
                     socket.emit('message', {type: 3, flag: flag, num: num});
                     socket.emit('message', {type: 0, flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
                 }
-            }, 500);
+            });
         });
 
         socket.on('message', function (obj) {
+            console.log(obj);
             switch (obj.type) {
-                case 0://产生新方块
-                    players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.num * dd, r);
-                    break;
                 case 1://方块位置变化
                     players[obj.num].x = obj.x;
                     players[obj.num].y = obj.y;
+                    break;
+                case 5://旋转
+                    chick.chickAngle(players[obj.num]);
+                    break;
+                case 0://产生新方块
+                    players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.num * dd, r);
                     break;
                 case 2://方块停止运动绘制瓦片 并检查是否得分
                     drawMap.drawBox(players[obj.num]);
@@ -129,24 +133,15 @@ var playState = function (game) {
                     drawMap.removeLine(obj.line);
                     drawMap.downTile(obj.line);
                     break;
-                case 5://旋转
-                    chick.chickAngle(players[obj.num]);
+                case 6://用户离开
+                    removeByValue(players, players[obj.num]);
+                    players[obj.num].destroy();
                     break;
             }
         });
-
-        socket.on('leave', function (obj) {
-            removeByValue(players, players[obj.num]);
-            players[obj.num].destroy();
-        })
-
     }
     this.update = function () {
         stats.update();
-    }
-
-    function leave() {
-        socket.emit('leave', {flag: flag, num: num});
     }
 
     function removeByValue(array, val) {
