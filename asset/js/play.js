@@ -1,5 +1,5 @@
 var playState = function (game) {
-    var flag, num, players = {};
+    var flag, num, players = {}, gameover = false;
     var d = 10, r = 100;
     var drawMap, chick, createBox;
     var tileMap, layer1;
@@ -51,38 +51,57 @@ var playState = function (game) {
 
         // 键盘监听
         document.onkeydown = function (event) {
-            var e = event || window.event
-                || arguments.callee.caller.arguments[0];
-            if (e && e.keyCode == 38) { // 按 up
-                socket.emit('message', {type: 5, flag: flag, num: num});
-            }
-            if (e && e.keyCode == 40) { // 按 down
-                if (chick.chickMove(players[num], 40)) {
-                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + d});
+            if (!gameover) {
+                var e = event || window.event
+                    || arguments.callee.caller.arguments[0];
+                if (e && e.keyCode == 38) { // 按 up
+                    socket.emit('message', {type: 5, flag: flag, num: num});
                 }
-            }
-            if (e && e.keyCode == 37) { // 按 left
-                if (chick.chickMove(players[num], 37)) {
-                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x - d, y: players[num].y});
+                if (e && e.keyCode == 40) { // 按 down
+                    if (chick.chickMove(players[num], 40)) {
+                        socket.emit('message', {
+                            type: 1,
+                            flag: flag,
+                            num: num,
+                            x: players[num].x,
+                            y: players[num].y + d
+                        });
+                    }
                 }
-            }
+                if (e && e.keyCode == 37) { // 按 left
+                    if (chick.chickMove(players[num], 37)) {
+                        socket.emit('message', {
+                            type: 1,
+                            flag: flag,
+                            num: num,
+                            x: players[num].x - d,
+                            y: players[num].y
+                        });
+                    }
+                }
 
-            if (e && e.keyCode == 39) { // 按 right
-                if (chick.chickMove(players[num], 39)) {
-                    socket.emit('message', {type: 1, flag: flag, num: num, x: players[num].x + d, y: players[num].y});
+                if (e && e.keyCode == 39) { // 按 right
+                    if (chick.chickMove(players[num], 39)) {
+                        socket.emit('message', {
+                            type: 1,
+                            flag: flag,
+                            num: num,
+                            x: players[num].x + d,
+                            y: players[num].y
+                        });
+                    }
                 }
-            }
-            if (e && e.keyCode == 65) {
+                if (e && e.keyCode == 65) {
+                }
             }
         }
 
         window.onbeforeunload = function () {//关闭窗口
             //leave();
-           // console.log('关闭窗口');
         }
 
         game.input.onDown.add(function () {
-            //socket.emit('send', 'ok');
+            //game.time.events.stop(false);
         });
 
 
@@ -102,7 +121,6 @@ var playState = function (game) {
                 }
             });
         });
-
         socket.on('message', function (obj) {
             console.log(obj);
             switch (obj.type) {
@@ -124,6 +142,9 @@ var playState = function (game) {
                             socket.emit('message', {type: 4, flag: flag, line: chickLine});
                             chickLine.splice(0, chickLine.length);
                         }
+                        if (chick.chickDie()) {
+                            socket.emit('message', {type: 7, flag: flag});
+                        }
                     }
                     break;
                 case 3://销毁方块
@@ -137,7 +158,13 @@ var playState = function (game) {
                     removeByValue(players, players[obj.num]);
                     players[obj.num].destroy();
                     break;
+                case 7://游戏结束
+                    gameover = true;
+                    game.time.events.stop(false);
+                    break;
+
             }
+
         });
     }
     this.update = function () {

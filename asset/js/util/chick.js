@@ -380,6 +380,15 @@ class Chick {
 
     }
 
+    chickDie(){
+        for(var i = this.r/this.d;i<(game.width - this.r)/this.d;i++){
+            if(this.map.hasTile(i,this.r/this.d,this.layer)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     ck(a, b, c) {
         for (var i = a; i < c; i++) {
             if (!this.map.hasTile(i, b, this.layer)) {
