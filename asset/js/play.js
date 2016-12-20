@@ -24,7 +24,8 @@ var playState = function (game) {
         game.stage.disableVisibilityChange = true;
         game.add.plugin(Fabrique.Plugins.InputField);
         socket = io.connect('http://localhost:3000', {'reconnection': false});
-        cursors = this.input.keyboard.createCursorKeys();
+        socket.emit('getdata'),
+            cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
         tileMap.addTilesetImage('tileset', 'tile', d, d);
         layer1 = tileMap
@@ -67,7 +68,7 @@ var playState = function (game) {
         scoreText.lineSpacing = 1;
         scoreText.anchor.setTo(1, 0);
 
-        inputText = game.add.inputField(game.width/3,game.height-r/2,{
+        inputText = game.add.inputField(game.width / 3, game.height - r / 2, {
             font: '18px Arial',
             fill: '#212121',
             fontWeight: 'bold',
@@ -79,7 +80,7 @@ var playState = function (game) {
             placeHolder: 'Enter发射',
             type: Fabrique.InputType.text
         });
-        inputText.anchor.setTo(0,0)
+        inputText.anchor.setTo(0, 0)
 
         // 键盘监听
         document.onkeydown = function (event) {
@@ -147,10 +148,10 @@ var playState = function (game) {
             //scoreText.setText('得分:00');
         });
 
-        socket.on('barrage', function (obj) {
+
+        socket.on('barrage', function (obj) {//聊天
             sstGroup[obj.myx].text = obj.msg;
             tweeenStart(obj.myx);
-
         });
 
         var tween_0 = game.add.tween(sstGroup[0]).to({alpha: 0}, 200, null, false, 0, 8, true);
@@ -189,12 +190,26 @@ var playState = function (game) {
             }
         }
 
-        var roomOne = createBox.createText('第一名:\n0', game.width - r + d, r, sStyle);
-        var roomTwo = createBox.createText('第二名: \n0', game.width - r + d, r + 100, sStyle);
+        var historyMax = createBox.createText('历史最高:\n0', game.width - r + d, r, sStyle)
+        var roomOne = createBox.createText('第一名:\n0', game.width - r + d, r + 100, sStyle);
+        var roomTwo = createBox.createText('第二名: \n0', game.width - r + d, r + 200, sStyle);
         roomOne.anchor.setTo(0, 0);
         roomTwo.anchor.setTo(0, 0);
+        historyMax.anchor.setTo(0, 0);
+        historyMax.rotation = 50;
         roomOne.rotation = 50;
         roomTwo.rotation = 50;
+
+
+        socket.on('getdata', function (obj) {
+            historyMax.text = '历史最高:\n' + obj.hismax;
+                roomOne.text = '第一名:\n' + obj.maxS[0];
+                roomTwo.text = '第二名: \n' + obj.maxS[1];
+        })
+
+        socket.on('max', function (obj) {
+            historyMax.text = '历史最高:\n' + obj.hismax;
+        })
 
         socket.on('updateRoomScore', function (obj) {
             console.log(obj);
