@@ -7,9 +7,14 @@ for(var i = 0;i<arr.length;i++){
 
 jj.xx = 'xxx';
 
-console.log(jj);
+var x = 2;
+
+if(1==1){
+    console.log('1');
+}else if(1==1){
+    console.log('2');
+}
 //for (var x in jj){
 //    console.log(x);
 //}
 
-console.log(jj[3]);

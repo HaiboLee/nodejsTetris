@@ -8,7 +8,7 @@ var playState = function (game) {
     var socket;
     var sstGroup = [];
     var myx;
-    var allRooms = [];
+    var inputText;
     this.init = function () {
         createBox = new CreateBox();
 
@@ -22,7 +22,7 @@ var playState = function (game) {
     this.create = function () {
         var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
         game.stage.disableVisibilityChange = true;
-        //game.add.plugin(Fabrique.Plugins.InputField);
+        game.add.plugin(Fabrique.Plugins.InputField);
         socket = io.connect('http://localhost:3000', {'reconnection': false});
         cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
@@ -67,21 +67,20 @@ var playState = function (game) {
         scoreText.lineSpacing = 1;
         scoreText.anchor.setTo(1, 0);
 
-        //input = game.add.inputField(game.width/3,game.height-r/2,{
-        //    font: '18px Arial',
-        //    fill: '#212121',
-        //    fontWeight: 'bold',
-        //    width: 150,
-        //    padding: 8,
-        //    borderWidth: 1,
-        //    borderColor: '#000',
-        //    borderRadius: 6,
-        //    placeHolder: '弹幕发射',
-        //    type: Fabrique.InputType.text
-        //});
-        //input.anchor.setTo(0,0)
+        inputText = game.add.inputField(game.width/3,game.height-r/2,{
+            font: '18px Arial',
+            fill: '#212121',
+            fontWeight: 'bold',
+            width: 300,
+            padding: 8,
+            borderWidth: 1,
+            borderColor: '#000',
+            borderRadius: 6,
+            placeHolder: 'Enter发射',
+            type: Fabrique.InputType.text
+        });
+        inputText.anchor.setTo(0,0)
 
-        var barrage = document.getElementById('barrage');
         // 键盘监听
         document.onkeydown = function (event) {
             if (!gameover) {
@@ -125,11 +124,13 @@ var playState = function (game) {
                     }
                 }
                 if (e && e.keyCode == 13) {//发射弹幕
-                    var mm = barrage.value;
+                    //var mm = barrage.value;
+                    var mm = inputText.value;
+                    console.log(mm)
                     if (mm != '') {
-                        socket.emit('barrage', {flag: flag, msg: barrage.value, myx: myx});
+                        socket.emit('barrage', {flag: flag, msg: mm, myx: myx});
                     }
-                    barrage.value = '';
+                    inputText.setText('');
                 }
             }
         }

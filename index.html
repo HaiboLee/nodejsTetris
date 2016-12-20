@@ -8,11 +8,6 @@
             margin: auto;
         }
 
-        div
-         {
-              margin:0 auto;
-         }
-
         div, html, body {
             height: 100%;
             overflow: hidden;
@@ -30,7 +25,7 @@
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="node_modules/@orange-games/phaser-input/build/phaser-input.js"></script>
     <script>
-        var game = new Phaser.Game(1000, 600, Phaser.AUTO, 'game');
+        var game = new Phaser.Game(1000, 600, Phaser.AUTO, 'container');
         game.state.add('boot', bootState);
         game.state.add('load', loadState);
         game.state.add('menu', menuState);
@@ -41,8 +36,6 @@
 </head>
 <body>
 <div style="background-color: dimgray" id="container">
-    <div id = 'game' style="width: 1000px;height: 600px"></div>
-    <div style="text-align:center;"><input onfocus="clearText()" type="text" style="width: 1000px"  id = 'barrage' value = 'Enter发送文字'></div>
 </div>
 </body>
 </html>
