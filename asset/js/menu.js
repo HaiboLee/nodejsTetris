@@ -7,3 +7,7 @@ var menuState = function (game) {
         start_btn.anchor.setTo(0.5);
     }
 }
+
+function clearText() {
+    document.getElementById('barrage').value = '';
+}

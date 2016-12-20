@@ -1,11 +1,13 @@
 var playState = function (game) {
-    var flag, num, players = {}, gameover = false,score = 0;
+    var flag, num, players = {}, gameover = true, score = 0;
     var d = 10, r = 100;
     var drawMap, chick, createBox;
     var tileMap, layer1;
     var stats, cursors;
     var chickLine = null;
     var socket;
+    var sstGroup = [];
+    var myx;
     this.init = function () {
         createBox = new CreateBox();
 
@@ -18,8 +20,8 @@ var playState = function (game) {
     }
     this.create = function () {
         game.stage.disableVisibilityChange = true;
-
-        socket = io.connect('http://localhost:3000',{'reconnection':false} );
+        //game.add.plugin(Fabrique.Plugins.InputField);
+        socket = io.connect('http://localhost:3000', {'reconnection': false});
         cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
         tileMap.addTilesetImage('tileset', 'tile', d, d);
@@ -40,23 +42,45 @@ var playState = function (game) {
         var dd = (game.width - 2 * r) / 5;
 
         var begindd = r + dd / 2;
-        createBox.createUser('one', begindd, r / 2);
-        createBox.createUser('two', begindd + dd, r / 2);
-        createBox.createUser('three', begindd + 2 * dd, r / 2);
-        createBox.createUser('four', begindd + 3 * dd, r / 2);
-        createBox.createUser('five', begindd + 4 * dd, r / 2);
+        createBox.createUser('one', begindd, r / 4);
+        createBox.createUser('two', begindd + dd, r / 4);
+        createBox.createUser('three', begindd  + 2 * dd, r / 4);
+        createBox.createUser('four', begindd + 3 * dd, r / 4);
+        createBox.createUser('five', begindd + 4 * dd, r / 4);
 
-        var scoreStyle = { font: "15px '微软雅黑'", fill: "#ccc", align: "center" };
-        var scoreText = game.add.text(game.width -20, 0, '得分:'+score, scoreStyle);
+        var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
+        sstGroup.push(createBox.createText(begindd,r/3*2,sStyle));
+        sstGroup.push( createBox.createText(begindd + dd,r/3*2,sStyle));
+        sstGroup.push(createBox.createText(begindd + 2 * dd,r/3*2,sStyle));
+        sstGroup.push(createBox.createText(begindd + 3 * dd,r/3*2,sStyle));
+        sstGroup.push(createBox.createText(begindd + 4 * dd,r/3*2,sStyle));
+
+        var scoreStyle = {font: "15px '微软雅黑'", fill: "#ccc", align: "center"};
+        var scoreText = game.add.text(game.width - 20, 0, '得分:' + score, scoreStyle);
         scoreText.setShadow(1, 1, "#00FFFF", 0);
         scoreText.addColor("#00fffff", 1);
         scoreText.addColor("#000000", 6);
         scoreText.addColor("#00FF00", 7);
         scoreText.anchor.set(0.5);
-        scoreText.rotation  = 50;
+        scoreText.rotation = 50;
         scoreText.lineSpacing = 1;
-        scoreText.anchor.setTo(1,0);
+        scoreText.anchor.setTo(1, 0);
 
+        //input = game.add.inputField(game.width/3,game.height-r/2,{
+        //    font: '18px Arial',
+        //    fill: '#212121',
+        //    fontWeight: 'bold',
+        //    width: 150,
+        //    padding: 8,
+        //    borderWidth: 1,
+        //    borderColor: '#000',
+        //    borderRadius: 6,
+        //    placeHolder: '弹幕发射',
+        //    type: Fabrique.InputType.text
+        //});
+        //input.anchor.setTo(0,0)
+
+        var barrage = document.getElementById('barrage');
         // 键盘监听
         document.onkeydown = function (event) {
             if (!gameover) {
@@ -99,7 +123,13 @@ var playState = function (game) {
                         });
                     }
                 }
-                if (e && e.keyCode == 65) {
+                if (e && e.keyCode == 13) {//发射弹幕
+                    console.log(barrage.value);
+                    var mm = barrage.value;
+                    if (mm != '') {
+                        socket.emit('barrage', {flag: flag, msg: barrage.value,myx:myx});
+                    }
+                    barrage.value = '';
                 }
             }
         }
@@ -116,11 +146,55 @@ var playState = function (game) {
             //scoreText.setText('得分:00');
         });
 
+        socket.on('barrage', function (obj) {
+            console.log(obj);
+            sstGroup[obj.myx].text = obj.msg;
+            tweeenStart(obj.myx);
+
+        });
+
+        var tween_0 = game.add.tween(sstGroup[0]).to({alpha:0},200,null,false,0,8,true);
+        var tween_1 = game.add.tween(sstGroup[1]).to({alpha:0},200,null,false,0,8,true);
+        var tween_2 = game.add.tween(sstGroup[2]).to({alpha:0},200,null,false,0,8,true);
+        var tween_3 = game.add.tween(sstGroup[3]).to({alpha:0},200,null,false,0,8,true);
+        var tween_4 = game.add.tween(sstGroup[4]).to({alpha:0},200,null,false,0,8,true);
+        function tweeenStart(n){
+            switch (n){
+                case 0:
+                    tween_0.start().onComplete.add(function () {
+                        sstGroup[0].text = '';
+                    });
+                    break;
+                case 1:
+                    tween_1.start().onComplete.add(function () {
+                        sstGroup[1].text = '';
+                    });
+                    break;
+                case 2:
+                    tween_2.start().onComplete.add(function () {
+                        sstGroup[2].text = '';
+                    });
+                    break;
+                case 3:
+                    tween_3.start().onComplete.add(function () {
+                    sstGroup[4].text = '';
+                });
+                    break;
+                case 4:
+                    tween_4.start().onComplete.add(function () {
+                        sstGroup[4].text = '';
+                    });
+                    break;
+            }
+        }
+
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
+            gameover = false;
             flag = obj.flag;
             num = obj.num;
             console.log(obj.flag);
             console.log(obj.num);
+            myx = obj.myx;
             socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
             game.time.events.loop(500, function () {
                 if (chick.chickMove(players[num], 40)) {
@@ -140,7 +214,7 @@ var playState = function (game) {
         });
 
         socket.on('score', function (obj) {
-            scoreText.setText('得分:'+obj.score);
+            scoreText.setText('得分:' + obj.score);
         })
 
         socket.on('msg', function (obj) {
@@ -174,7 +248,7 @@ var playState = function (game) {
                 case 4://得分 消除整行并下移
                     drawMap.removeLine(obj.line);
                     drawMap.downTile(obj.line);
-                    socket.emit('score',{'flag':flag,'goal':obj.line.length});
+                    socket.emit('score', {'flag': flag, 'goal': obj.line.length});
                     break;
                 case 6://用户离开
                     removeByValue(players, players[obj.num]);
@@ -183,17 +257,17 @@ var playState = function (game) {
                 case 7://游戏结束
                     gameover = true;
                     game.time.events.stop(false);
-                    var style = { font: "50px '微软雅黑'", fill: "#ccc", align: "center" };
-                    var text = game.add.text(game.width/2, game.height, 'GAME  OVER!', style);
+                    var style = {font: "50px '微软雅黑'", fill: "#ccc", align: "center"};
+                    var text = game.add.text(game.width / 2, game.height, 'GAME  OVER!', style);
                     text.setShadow(1, 1, "#00FFFF", 0);
                     text.addColor("#00fffff", 1);
                     text.addColor("#000000", 6);
                     text.addColor("#00FF00", 7);
                     text.anchor.set(0.5);
-                    text.rotation  = 50;
+                    text.rotation = 50;
                     text.lineSpacing = 1;
-                    game.add.tween(text).to({y:game.height/2},2000,Phaser.Easing.Elastic.Out,true,0,0,false);
-                    var restart_btn = game.add.button(game.width/2,game.height/2 + 50,'start_btn', function () {
+                    game.add.tween(text).to({y: game.height / 2}, 2000, Phaser.Easing.Elastic.Out, true, 0, 0, false);
+                    var restart_btn = game.add.button(game.width / 2, game.height / 2 + 50, 'start_btn', function () {
                         //gameover = false;
                         //socket.emit('restart',{flag:flag,num:num});
                         //game.state.start("menu");
@@ -205,7 +279,6 @@ var playState = function (game) {
                     break;
 
             }
-
         });
     }
     this.update = function () {

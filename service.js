@@ -24,7 +24,7 @@ io.on('connection', function (socket) {
         var wr = {};
         for (var i = 0; i < waitRoom.length; i++) {
             wr[waitRoom[i].id] = i;
-            waitRoom[i].emit('j',{flag: f, num: waitRoom[i].id});
+            waitRoom[i].emit('j',{flag: f, num: waitRoom[i].id,myx:i});
             waitRoom[i].join(f);
         }
         wr['score'] = 0;
@@ -36,8 +36,12 @@ io.on('connection', function (socket) {
         io.sockets.in(obj.flag).emit('msg',obj);
     });
 
-    socket.on('restart', function () {
+/*    socket.on('restart', function () {
         socket.emit('disconnect');
+    });*/
+
+    socket.on('barrage', function (obj) {
+        io.sockets.in(obj.flag).emit('barrage',obj);
     });
 
     socket.on('new', function (obj) {
