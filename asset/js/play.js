@@ -1,5 +1,5 @@
 var playState = function (game) {
-    var flag, num, players = {}, gameover = false;
+    var flag, num, players = {}, gameover = false,score = 0;
     var d = 10, r = 100;
     var drawMap, chick, createBox;
     var tileMap, layer1;
@@ -45,6 +45,17 @@ var playState = function (game) {
         createBox.createUser('three', begindd + 2 * dd, r / 2);
         createBox.createUser('four', begindd + 3 * dd, r / 2);
         createBox.createUser('five', begindd + 4 * dd, r / 2);
+
+        var scoreStyle = { font: "15px '微软雅黑'", fill: "#ccc", align: "center" };
+        var scoreText = game.add.text(game.width -20, 0, '得分:'+score, scoreStyle);
+        scoreText.setShadow(1, 1, "#00FFFF", 0);
+        scoreText.addColor("#00fffff", 1);
+        scoreText.addColor("#000000", 6);
+        scoreText.addColor("#00FF00", 7);
+        scoreText.anchor.set(0.5);
+        scoreText.rotation  = 50;
+        scoreText.lineSpacing = 1;
+        scoreText.anchor.setTo(1,0);
 
         // 键盘监听
         document.onkeydown = function (event) {
@@ -102,6 +113,7 @@ var playState = function (game) {
             //socket.emit('restart',{flag:flag,num:num});
             //game.state.start('menu');
             //location.reload(true);
+            //scoreText.setText('得分:00');
         });
 
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
@@ -126,6 +138,10 @@ var playState = function (game) {
         socket.on('new', function (obj) {
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
         });
+
+        socket.on('score', function (obj) {
+            scoreText.setText('得分:'+obj.score);
+        })
 
         socket.on('msg', function (obj) {
             switch (obj.type) {
@@ -158,6 +174,7 @@ var playState = function (game) {
                 case 4://得分 消除整行并下移
                     drawMap.removeLine(obj.line);
                     drawMap.downTile(obj.line);
+                    socket.emit('score',{'flag':flag,'goal':obj.line.length});
                     break;
                 case 6://用户离开
                     removeByValue(players, players[obj.num]);
