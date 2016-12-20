@@ -22,8 +22,8 @@ class CreateBox {
         game.add.image(x, y, a).anchor.setTo(0.5, 0.5);
     }
 
-    createText(x, y, s) {
-        var text = game.add.text(x, y, '', s);
+    createText(a,x, y, s) {
+        var text = game.add.text(x, y, a, s);
         text.setShadow(1, 1, "#00FFFF", 0);
         //text.addColor("#ff0000", 1);
         //text.addColor("#0000ff", 6);

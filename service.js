@@ -13,6 +13,7 @@ var onlineUsers = 0;
 var waitRoom = [];
 var roomSize = 2;
 var room = {};
+var maxScore = [0,0];
 
 var play_game = io.of('/play_game');
 
@@ -30,6 +31,7 @@ io.on('connection', function (socket) {
         wr['score'] = 0;
         waitRoom.splice(0, waitRoom.length);
         room[f] = wr;
+        io.sockets.emit('updateRoomScore',{'maxS':maxScore});
     }
     console.log('有新用户加入在线用户:' + onlineUsers + '房间数：' + getJsonSize(room));
     socket.on('msg', function (obj) {
@@ -50,7 +52,22 @@ io.on('connection', function (socket) {
     });
 
     socket.on('score', function (obj) {
-        io.sockets.in(obj.flag).emit('score',{score : room[obj.flag]['score']+Math.pow(2,obj.goal)});
+        var newscore =  room[obj.flag]['score']+Math.pow(2,obj.goal);
+        io.sockets.in(obj.flag).emit('score',{score :newscore});
+
+        if (newscore>maxScore[0] && newscore>maxScore[1]){
+            if (maxScore[0] == maxScore[1]){
+                maxScore[0] = newscore;
+            }else {
+                maxScore[1] = maxScore[0];
+                maxScore[0] = newscore;
+            }
+            console.log(maxScore);
+            io.sockets.emit('updateRoomScore',{'maxS':maxScore});
+        }else if((!newscore>maxScore[0]) && newscore > maxScore[1]){
+            maxScore[1] = newscore;
+            io.sockets.emit('updateRoomScore',{'maxS':maxScore});
+        }
     })
 
     socket.on('disconnect', function () {
@@ -80,9 +97,6 @@ io.on('connection', function (socket) {
         console.log('有玩家离开，当前在线玩家:' + onlineUsers + '房间数：' + getJsonSize(room))
     });
 
-    socket.on('reconnect', function(){
-        console.log('重連');
-    });
 });
 
 function removeByValue(array, val) {

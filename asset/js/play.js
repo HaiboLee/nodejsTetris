@@ -8,6 +8,7 @@ var playState = function (game) {
     var socket;
     var sstGroup = [];
     var myx;
+    var allRooms = [];
     this.init = function () {
         createBox = new CreateBox();
 
@@ -19,6 +20,7 @@ var playState = function (game) {
         document.body.appendChild(stats.domElement);
     }
     this.create = function () {
+        var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
         game.stage.disableVisibilityChange = true;
         //game.add.plugin(Fabrique.Plugins.InputField);
         socket = io.connect('http://localhost:3000', {'reconnection': false});
@@ -44,16 +46,15 @@ var playState = function (game) {
         var begindd = r + dd / 2;
         createBox.createUser('one', begindd, r / 4);
         createBox.createUser('two', begindd + dd, r / 4);
-        createBox.createUser('three', begindd  + 2 * dd, r / 4);
+        createBox.createUser('three', begindd + 2 * dd, r / 4);
         createBox.createUser('four', begindd + 3 * dd, r / 4);
         createBox.createUser('five', begindd + 4 * dd, r / 4);
 
-        var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
-        sstGroup.push(createBox.createText(begindd,r/3*2,sStyle));
-        sstGroup.push( createBox.createText(begindd + dd,r/3*2,sStyle));
-        sstGroup.push(createBox.createText(begindd + 2 * dd,r/3*2,sStyle));
-        sstGroup.push(createBox.createText(begindd + 3 * dd,r/3*2,sStyle));
-        sstGroup.push(createBox.createText(begindd + 4 * dd,r/3*2,sStyle));
+        sstGroup.push(createBox.createText('', begindd, r / 3 * 2, sStyle));
+        sstGroup.push(createBox.createText('', begindd + dd, r / 3 * 2, sStyle));
+        sstGroup.push(createBox.createText('', begindd + 2 * dd, r / 3 * 2, sStyle));
+        sstGroup.push(createBox.createText('', begindd + 3 * dd, r / 3 * 2, sStyle));
+        sstGroup.push(createBox.createText('', begindd + 4 * dd, r / 3 * 2, sStyle));
 
         var scoreStyle = {font: "15px '微软雅黑'", fill: "#ccc", align: "center"};
         var scoreText = game.add.text(game.width - 20, 0, '得分:' + score, scoreStyle);
@@ -124,10 +125,9 @@ var playState = function (game) {
                     }
                 }
                 if (e && e.keyCode == 13) {//发射弹幕
-                    console.log(barrage.value);
                     var mm = barrage.value;
                     if (mm != '') {
-                        socket.emit('barrage', {flag: flag, msg: barrage.value,myx:myx});
+                        socket.emit('barrage', {flag: flag, msg: barrage.value, myx: myx});
                     }
                     barrage.value = '';
                 }
@@ -147,19 +147,19 @@ var playState = function (game) {
         });
 
         socket.on('barrage', function (obj) {
-            console.log(obj);
             sstGroup[obj.myx].text = obj.msg;
             tweeenStart(obj.myx);
 
         });
 
-        var tween_0 = game.add.tween(sstGroup[0]).to({alpha:0},200,null,false,0,8,true);
-        var tween_1 = game.add.tween(sstGroup[1]).to({alpha:0},200,null,false,0,8,true);
-        var tween_2 = game.add.tween(sstGroup[2]).to({alpha:0},200,null,false,0,8,true);
-        var tween_3 = game.add.tween(sstGroup[3]).to({alpha:0},200,null,false,0,8,true);
-        var tween_4 = game.add.tween(sstGroup[4]).to({alpha:0},200,null,false,0,8,true);
-        function tweeenStart(n){
-            switch (n){
+        var tween_0 = game.add.tween(sstGroup[0]).to({alpha: 0}, 200, null, false, 0, 8, true);
+        var tween_1 = game.add.tween(sstGroup[1]).to({alpha: 0}, 200, null, false, 0, 8, true);
+        var tween_2 = game.add.tween(sstGroup[2]).to({alpha: 0}, 200, null, false, 0, 8, true);
+        var tween_3 = game.add.tween(sstGroup[3]).to({alpha: 0}, 200, null, false, 0, 8, true);
+        var tween_4 = game.add.tween(sstGroup[4]).to({alpha: 0}, 200, null, false, 0, 8, true);
+
+        function tweeenStart(n) {
+            switch (n) {
                 case 0:
                     tween_0.start().onComplete.add(function () {
                         sstGroup[0].text = '';
@@ -177,8 +177,8 @@ var playState = function (game) {
                     break;
                 case 3:
                     tween_3.start().onComplete.add(function () {
-                    sstGroup[4].text = '';
-                });
+                        sstGroup[4].text = '';
+                    });
                     break;
                 case 4:
                     tween_4.start().onComplete.add(function () {
@@ -187,6 +187,19 @@ var playState = function (game) {
                     break;
             }
         }
+
+        var roomOne = createBox.createText('第一名:\n0', game.width - r + d, r, sStyle);
+        var roomTwo = createBox.createText('第二名: \n0', game.width - r + d, r + 100, sStyle);
+        roomOne.anchor.setTo(0, 0);
+        roomTwo.anchor.setTo(0, 0);
+        roomOne.rotation = 50;
+        roomTwo.rotation = 50;
+
+        socket.on('updateRoomScore', function (obj) {
+            console.log(obj);
+            roomOne.text = '第一名:\n' + obj.maxS[0];
+            roomTwo.text = '第二名: \n' + obj.maxS[1];
+        });
 
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
             gameover = false;
