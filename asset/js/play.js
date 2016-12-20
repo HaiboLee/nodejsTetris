@@ -23,7 +23,7 @@ var playState = function (game) {
         var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
         game.stage.disableVisibilityChange = true;
         game.add.plugin(Fabrique.Plugins.InputField);
-        socket = io.connect('http://localhost:3000', {'reconnection': false});
+        socket = io.connect('http://'+window.location.host, {'reconnection': false});
         socket.emit('getdata'),
             cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
@@ -300,7 +300,7 @@ var playState = function (game) {
                         //gameover = false;
                         //socket.emit('restart',{flag:flag,num:num});
                         //game.state.start("menu");
-                        location.reload(true);
+                        location.reload(false);
                     });
                     restart_btn.scale.setTo(0.5);
                     restart_btn.anchor.setTo(0.5);
