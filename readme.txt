@@ -10,6 +10,8 @@ npm install --save express
 
 npm install --save socket.io
 
+npm install @orange-games/phaser-input --save-dev
+
 todo
 1 3个方块需要添加
 2 玩家方块之间的碰撞检测
