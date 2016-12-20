@@ -66,13 +66,12 @@ io.on('connection', function (socket) {
             }
         }
         //console.log(io.sockets.adapter.rooms);
-        console.log("离开玩家的："+socket.id);
+        //console.log("离开玩家的："+socket.id);
         io.sockets.in(roomId).emit('msg',{type:6,num:socket.id});
         delete room[roomId][socket.id];
         if(getJsonSize(room[roomId]) == 1){
             delete room[roomId];
         }
-        //socket.leave(roomId);
         //console.log(io.sockets.adapter.rooms);
         console.log('有玩家离开，当前在线玩家:' + onlineUsers + '房间数：' + getJsonSize(room))
     });
