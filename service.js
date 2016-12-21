@@ -16,8 +16,6 @@ var room = {};
 var maxScore = [0, 0];
 var historyMaxScore = 0;
 
-var play_game = io.of('/play_game');
-
 io.on('connection', function (socket) {
     onlineUsers++;
     waitRoom.push(socket);

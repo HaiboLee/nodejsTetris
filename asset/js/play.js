@@ -96,7 +96,7 @@ var playState = function (game) {
                             type: 1,
                             flag: flag,
                             num: num,
-                            x: players[num].x,
+                            //x: players[num].x,
                             y: players[num].y + d
                         });
                     }
@@ -108,7 +108,7 @@ var playState = function (game) {
                             flag: flag,
                             num: num,
                             x: players[num].x - d,
-                            y: players[num].y
+                            //y: players[num].y
                         });
                     }
                 }
@@ -120,7 +120,7 @@ var playState = function (game) {
                             flag: flag,
                             num: num,
                             x: players[num].x + d,
-                            y: players[num].y
+                            //y: players[num].y
                         });
                     }
                 }
@@ -227,7 +227,7 @@ var playState = function (game) {
             socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
             game.time.events.loop(500, function () {
                 if (chick.chickMove(players[num], 40)) {
-                    socket.emit('msg', {type: 1, flag: flag, num: num, x: players[num].x, y: players[num].y + 10});
+                    socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
                 } else {
                     socket.emit('msg', {type: 2, flag: flag, num: num});
                     socket.emit('msg', {type: 3, flag: flag, num: num});
@@ -249,8 +249,10 @@ var playState = function (game) {
         socket.on('msg', function (obj) {
             switch (obj.type) {
                 case 1://方块位置变化
-                    players[obj.num].x = obj.x;
-                    players[obj.num].y = obj.y;
+                    if(obj.x != undefined){
+                        players[obj.num].x = obj.x;
+                    }else{
+                    players[obj.num].y = obj.y;}
                     break;
                 case 5://旋转
                     chick.chickAngle(players[obj.num]);
