@@ -13,7 +13,7 @@ npm install --save socket.io
 npm install @orange-games/phaser-input --save-dev
 
 todo
-1 3个方块需要添加
+1 3个方块需要添加 //添加完成 还需继续测试小bug 碰撞检测是否正确
 2 玩家方块之间的碰撞检测
 3 弹幕功能的开发 //聊天功能已完成 使用弹幕将影响性能 所以每个玩家使用的聊天文字闪动
 
