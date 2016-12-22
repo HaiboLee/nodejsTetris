@@ -145,8 +145,7 @@ var playState = function (game) {
             //socket.emit('restart',{flag:flag,num:num});
             //game.state.start('menu');
             //location.reload(true);
-            //scoreText.setText('得分:00');
-            //players[num].angle  +=90;
+            //game.time.events.pause();
         });
 
 
@@ -242,9 +241,9 @@ var playState = function (game) {
 
         socket.on('new', function (obj) {
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
-            if(obj.num == num){
-                game.time.events.resume();
-            }
+            //if(obj.num == num){
+            //    game.time.events.resume();
+            //}
         });
 
         socket.on('score', function (obj) {
@@ -268,9 +267,11 @@ var playState = function (game) {
                     break;
                 case 2://方块停止运动绘制瓦片 并检查是否得分
                     drawMap.drawBox(players[obj.num]);
+                    var ppp = players[obj.num];
+                    players[obj.num].destroy();
                     if (obj.num == num) {
-                        game.time.events.pause();
-                        chickLine = chick.chickLine(players[num]);
+                        //game.time.events.pause();
+                        chickLine = chick.chickLine(ppp);
                         if (chickLine.length != 0) {
                             socket.emit('msg', {type: 4, flag: flag, line: chickLine});
                             chickLine.splice(0, chickLine.length);
@@ -281,7 +282,6 @@ var playState = function (game) {
                         //socket.emit('msg', {type: 3, flag: flag, num: num});
                         socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                     }
-                    players[obj.num].destroy();
                     break;
                 case 3://销毁方块
                     //players[obj.num].destroy();
