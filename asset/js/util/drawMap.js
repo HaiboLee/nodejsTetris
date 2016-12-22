@@ -45,25 +45,55 @@ class DrawMap {
                     this.map.putTile(0, x - 1, y - 1, this.layer);
                     this.map.putTile(0, x - 1, y + 1, this.layer);
                     this.map.putTile(0, x, y + 1, this.layer);
-                    break;
+                    return;
                 case 90:
                     this.map.putTile(0, x, y - 1, this.layer);
                     this.map.putTile(0, x - 1, y - 1, this.layer);
                     this.map.putTile(0, x - 2, y - 1, this.layer);
                     this.map.putTile(0, x - 2, y, this.layer);
-                    break;
+                    return;
                 case -180:
                     this.map.putTile(0, x, y, this.layer);
                     this.map.putTile(0, x, y - 1, this.layer);
                     this.map.putTile(0, x, y - 2, this.layer);
                     this.map.putTile(0, x - 1, y - 2, this.layer);
-                    break;
+                    return;
                 case -90:
                     this.map.putTile(0, x, y, this.layer);
                     this.map.putTile(0, x - 1, y, this.layer);
                     this.map.putTile(0, x + 1, y, this.layer);
                     this.map.putTile(0, x + 1, y - 1, this.layer);
-                    break;
+                    return;
+
+            }
+        }
+
+        if (box.key == 'lf') {
+            switch (box.angle) {
+                case 0:
+                    this.map.putTile(0, x , y, this.layer);
+                    this.map.putTile(0, x , y -1 , this.layer);
+                    this.map.putTile(0, x , y + 1, this.layer);
+                    this.map.putTile(0, x -1, y + 1, this.layer);
+                    return;
+                case 90:
+                    this.map.putTile(0, x, y , this.layer);
+                    this.map.putTile(0, x - 1, y , this.layer);
+                    this.map.putTile(0, x - 2, y , this.layer);
+                    this.map.putTile(0, x - 2, y -1, this.layer);
+                    return;
+                case -180:
+                    this.map.putTile(0, x-1, y, this.layer);
+                    this.map.putTile(0, x-1, y - 1, this.layer);
+                    this.map.putTile(0, x-1, y - 2, this.layer);
+                    this.map.putTile(0, x, y - 2, this.layer);
+                    return;
+                case -90:
+                    this.map.putTile(0, x + 1, y, this.layer);
+                    this.map.putTile(0, x + 1, y-1, this.layer);
+                    this.map.putTile(0, x , y-1, this.layer);
+                    this.map.putTile(0, x -1, y - 1, this.layer);
+                    return;
 
             }
         }
@@ -74,7 +104,7 @@ class DrawMap {
                     this.map.putTile(1, x - 1, y, this.layer);
                     this.map.putTile(1, x, y - 1, this.layer);
                     this.map.putTile(1, x - 1, y - 1, this.layer);
-                    break;
+                    return;
             }
         }
         if (box.key == 'i') {
@@ -84,15 +114,50 @@ class DrawMap {
                     this.map.putTile(4, x, y + 1, this.layer);
                     this.map.putTile(4, x, y - 1, this.layer);
                     this.map.putTile(4, x, y - 2, this.layer);
-                    break;
+                    return;
                 case 90:
                     this.map.putTile(4, x + 1, y, this.layer);
                     this.map.putTile(4, x, y, this.layer);
                     this.map.putTile(4, x - 1, y, this.layer);
                     this.map.putTile(4, x - 2, y, this.layer);
-                    break;
+                    return;
             }
         }
+
+        if (box.key == 'x') {
+            switch (box.angle) {
+                case 0:
+                    this.map.putTile(3, x, y, this.layer);
+                    this.map.putTile(3, x-1, y, this.layer);
+                    this.map.putTile(3, x-1, y - 1, this.layer);
+                    this.map.putTile(3, x, y +1, this.layer);
+                    return;
+                case 90:
+                    this.map.putTile(3, x , y - 1, this.layer);
+                    this.map.putTile(3, x -1, y -1, this.layer);
+                    this.map.putTile(3, x - 1, y, this.layer);
+                    this.map.putTile(3, x - 2, y, this.layer);
+                    return;
+            }
+        }
+
+        if (box.key == 'xf') {
+            switch (box.angle) {
+                case 0:
+                    this.map.putTile(3, x, y, this.layer);
+                    this.map.putTile(3, x-1, y, this.layer);
+                    this.map.putTile(3, x-1, y + 1, this.layer);
+                    this.map.putTile(3, x, y -1, this.layer);
+                    return;
+                case 90:
+                    this.map.putTile(3, x , y , this.layer);
+                    this.map.putTile(3, x -1, y, this.layer);
+                    this.map.putTile(3, x - 1, y-1, this.layer);
+                    this.map.putTile(3, x - 2, y-1, this.layer);
+                    return;
+            }
+        }
+
         if (box.key == 't') {
             switch (box.angle) {
                 case 0:
@@ -100,25 +165,25 @@ class DrawMap {
                     this.map.putTile(2, x - 1, y, this.layer);
                     this.map.putTile(2, x + 1, y, this.layer);
                     this.map.putTile(2, x, y - 1, this.layer);
-                    break;
+                    return;
                 case 90:
                     this.map.putTile(2, x, y, this.layer);
                     this.map.putTile(2, x - 1, y, this.layer);
                     this.map.putTile(2, x - 1, y - 1, this.layer);
                     this.map.putTile(2, x - 1, y + 1, this.layer);
-                    break;
+                    return;
                 case -180:
                     this.map.putTile(2, x - 1, y, this.layer);
                     this.map.putTile(2, x - 1, y - 1, this.layer);
                     this.map.putTile(2, x - 2, y - 1, this.layer);
                     this.map.putTile(2, x, y - 1, this.layer);
-                    break;
+                    return;
                 case -90:
                     this.map.putTile(2, x, y, this.layer);
                     this.map.putTile(2, x, y - 1, this.layer);
                     this.map.putTile(2, x, y - 2, this.layer);
                     this.map.putTile(2, x - 1, y - 1, this.layer);
-                    break;
+                    return;
 
             }
         }

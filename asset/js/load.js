@@ -4,6 +4,9 @@ var loadState = function (game) {
         game.load.image('i','asset/img/I.png');
         game.load.image('o','asset/img/o.png');
         game.load.image('t','asset/img/T.png');
+        game.load.image('x','asset/img/x.png');
+        game.load.image('xf','asset/img/xf.png');
+        game.load.image('lf','asset/img/lf.png');
         game.load.image('tile','asset/img/tile.png');
         game.load.image('one','asset/img/one.png');
         game.load.image('two','asset/img/two.png');

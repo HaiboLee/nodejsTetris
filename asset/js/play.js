@@ -146,6 +146,7 @@ var playState = function (game) {
             //game.state.start('menu');
             //location.reload(true);
             //scoreText.setText('得分:00');
+            //players[num].angle  +=90;
         });
 
 
@@ -224,14 +225,15 @@ var playState = function (game) {
             console.log(obj.flag);
             console.log(obj.num);
             myx = obj.myx;
-            socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
+            socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
+            //socket.emit('new', {flag: flag, num: num, bid: 6});
             game.time.events.loop(500, function () {
                 if (chick.chickMove(players[num], 40)) {
                     socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
                 } else {
                     socket.emit('msg', {type: 2, flag: flag, num: num});
                     socket.emit('msg', {type: 3, flag: flag, num: num});
-                    socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 4)});
+                    socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                 }
             });
 

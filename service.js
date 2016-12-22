@@ -109,15 +109,6 @@ io.on('connection', function (socket) {
 
 });
 
-function removeByValue(array, val) {
-    for (var i = 0; i < array.length; i++) {
-        if (array[i] == val) {
-            array.splice(i, 1);
-            break;
-        }
-    }
-}
-
 function getJsonSize(obj) {
     var i = 0;
     for (var o in obj) {
