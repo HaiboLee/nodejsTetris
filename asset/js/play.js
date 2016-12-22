@@ -233,7 +233,6 @@ var playState = function (game) {
                         socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
                     } else {
                         socket.emit('msg', {type: 2, flag: flag, num: num});
-                        socket.emit('msg', {type: 3, flag: flag, num: num});
                     }
                 }
             });
@@ -276,6 +275,7 @@ var playState = function (game) {
                             socket.emit('msg', {type: 7, flag: flag});
                         }
                     }
+                    socket.emit('msg', {type: 3, flag: flag, num: num});
                     socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                     break;
                 case 3://销毁方块
