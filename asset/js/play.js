@@ -242,6 +242,9 @@ var playState = function (game) {
 
         socket.on('new', function (obj) {
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
+            if(obj.num == num){
+                game.time.events.resume();
+            }
         });
 
         socket.on('score', function (obj) {
@@ -266,6 +269,7 @@ var playState = function (game) {
                 case 2://方块停止运动绘制瓦片 并检查是否得分
                     drawMap.drawBox(players[obj.num]);
                     if (obj.num == num) {
+                        game.time.events.pause();
                         chickLine = chick.chickLine(players[num]);
                         if (chickLine.length != 0) {
                             socket.emit('msg', {type: 4, flag: flag, line: chickLine});
