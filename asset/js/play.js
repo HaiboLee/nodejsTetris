@@ -274,10 +274,10 @@ var playState = function (game) {
                         if (chick.chickDie()) {
                             socket.emit('msg', {type: 7, flag: flag});
                         }
+                        //socket.emit('msg', {type: 3, flag: flag, num: num});
+                        socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                     }
                     players[obj.num].destroy();
-                    //socket.emit('msg', {type: 3, flag: flag, num: num});
-                    socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                     break;
                 case 3://销毁方块
                     //players[obj.num].destroy();
