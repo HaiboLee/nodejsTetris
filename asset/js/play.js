@@ -275,11 +275,12 @@ var playState = function (game) {
                             socket.emit('msg', {type: 7, flag: flag});
                         }
                     }
-                    socket.emit('msg', {type: 3, flag: flag, num: num});
+                    players[obj.num].destroy();
+                    //socket.emit('msg', {type: 3, flag: flag, num: num});
                     socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
                     break;
                 case 3://销毁方块
-                    players[obj.num].destroy();
+                    //players[obj.num].destroy();
                     break;
                 case 4://得分 消除整行并下移
                     drawMap.removeLine(obj.line);
