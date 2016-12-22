@@ -49,15 +49,22 @@ io.on('connection', function (socket) {
         io.sockets.in(obj.flag).emit('barrage', obj);
     });
 
-    socket.on('new', function (obj) {
+    socket.on('destroy', function (obj) {
+        obj['x'] = room[obj.flag][socket.id];
+        obj['bid'] = Math.floor(Math.random() * 7);
+        io.sockets.in(obj.flag).emit('destroy', obj);
+    })
+
+    socket.on('new', function (obj){
         obj['x'] = room[obj.flag][socket.id];
         io.sockets.in(obj.flag).emit('new', obj);
     });
 
     socket.on('score', function (obj) {
-        var newscore = room[obj.flag]['score'] + Math.pow(2, obj.goal);
+        console.log(obj.goal);
+        room[obj.flag]['score'] = room[obj.flag]['score'] + Math.pow(2, obj.goal);
+        var newscore = room[obj.flag]['score'];
         io.sockets.in(obj.flag).emit('score', {score: newscore});
-
         if (newscore > maxScore[0] && newscore > maxScore[1]) {
             if (maxScore[0] == maxScore[1]) {
                 maxScore[0] = newscore;
@@ -65,7 +72,6 @@ io.on('connection', function (socket) {
                 maxScore[1] = maxScore[0];
                 maxScore[0] = newscore;
             }
-            console.log(maxScore);
             if (newscore > historyMaxScore) {
                 historyMaxScore = newscore;
                 io.sockets.emit('max', {'hismax': historyMaxScore});
@@ -93,8 +99,6 @@ io.on('connection', function (socket) {
                 break;
             }
         }
-        //console.log(io.sockets.adapter.rooms);
-        //console.log("离开玩家的："+socket.id);
         io.sockets.in(roomId).emit('msg', {type: 6, num: socket.id});
         delete room[roomId][socket.id];
         if (getJsonSize(room[roomId]) == 1) {
@@ -103,7 +107,6 @@ io.on('connection', function (socket) {
                 maxScore = [0,0];
             }
         }
-        //console.log(io.sockets.adapter.rooms);
         console.log('有玩家离开，当前在线玩家:' + onlineUsers + '房间数：' + getJsonSize(room))
     });
 

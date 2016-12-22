@@ -40,7 +40,10 @@ var playState = function (game) {
         drawMap.drawBound(3);
 
         //tileMap.putTile(4, 50, 30, layer1);
-        tileMap.fill(0, 10, 49, 77, 1, layer1);
+        tileMap.fill(0, 10, 49, 78, 1, layer1);
+        tileMap.fill(1, 10, 48, 78, 1, layer1);
+        tileMap.fill(2, 10, 47, 78, 1, layer1);
+        tileMap.fill(3, 10, 46, 78, 1, layer1);
         // 玩家头像位置
         var dd = (game.width - 2 * r) / 5;
 
@@ -231,7 +234,7 @@ var playState = function (game) {
                     if (chick.chickMove(players[num], 40)) {
                         socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
                     } else {
-                        socket.emit('msg', {type: 2, flag: flag, num: num});
+                        socket.emit('destroy', {flag: flag, num: num});
                     }
                 }
             });
@@ -241,9 +244,24 @@ var playState = function (game) {
 
         socket.on('new', function (obj) {
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
-            //if(obj.num == num){
-            //    game.time.events.resume();
-            //}
+        });
+
+        socket.on('destroy', function (obj) {
+            drawMap.drawBox(players[obj.num]);
+            var ppp = players[obj.num];
+            players[obj.num].destroy();
+            if (obj.num == num) {
+                //game.time.events.pause();
+                chickLine = chick.chickLine(ppp);
+                if (chickLine.length != 0) {
+                    socket.emit('msg', {type: 4, flag: flag, line: chickLine});
+                    chickLine.splice(0, chickLine.length);
+                }
+                if (chick.chickDie()) {
+                    socket.emit('msg', {type: 7, flag: flag});
+                }
+            }
+            players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
         });
 
         socket.on('score', function (obj) {
@@ -266,22 +284,6 @@ var playState = function (game) {
                     players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.num * dd, r);
                     break;
                 case 2://方块停止运动绘制瓦片 并检查是否得分
-                    drawMap.drawBox(players[obj.num]);
-                    var ppp = players[obj.num];
-                    players[obj.num].destroy();
-                    if (obj.num == num) {
-                        //game.time.events.pause();
-                        chickLine = chick.chickLine(ppp);
-                        if (chickLine.length != 0) {
-                            socket.emit('msg', {type: 4, flag: flag, line: chickLine});
-                            chickLine.splice(0, chickLine.length);
-                        }
-                        if (chick.chickDie()) {
-                            socket.emit('msg', {type: 7, flag: flag});
-                        }
-                        //socket.emit('msg', {type: 3, flag: flag, num: num});
-                        socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
-                    }
                     break;
                 case 3://销毁方块
                     //players[obj.num].destroy();
