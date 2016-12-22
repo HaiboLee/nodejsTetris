@@ -23,7 +23,7 @@ var playState = function (game) {
         var sStyle = {font: "15px '微软雅黑'", fill: "#fff", align: "center"};
         game.stage.disableVisibilityChange = true;
         game.add.plugin(Fabrique.Plugins.InputField);
-        socket = io.connect('http://'+window.location.host, {'reconnection': false});
+        socket = io.connect('http://' + window.location.host, {'reconnection': false});
         socket.emit('getdata'),
             cursors = this.input.keyboard.createCursorKeys();
         tileMap = game.add.tilemap();
@@ -204,8 +204,8 @@ var playState = function (game) {
 
         socket.on('getdata', function (obj) {
             historyMax.text = '历史最高:\n' + obj.hismax;
-                roomOne.text = '第一名:\n' + obj.maxS[0];
-                roomTwo.text = '第二名: \n' + obj.maxS[1];
+            roomOne.text = '第一名:\n' + obj.maxS[0];
+            roomTwo.text = '第二名: \n' + obj.maxS[1];
         })
 
         socket.on('max', function (obj) {
@@ -228,11 +228,13 @@ var playState = function (game) {
             socket.emit('new', {flag: flag, num: num, bid: Math.floor(Math.random() * 7)});
             //socket.emit('new', {flag: flag, num: num, bid: 6});
             game.time.events.loop(500, function () {
-                if (chick.chickMove(players[num], 40)) {
-                    socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
-                } else {
-                    socket.emit('msg', {type: 2, flag: flag, num: num});
-                    socket.emit('msg', {type: 3, flag: flag, num: num});
+                if (players[num] != undefined) {//
+                    if (chick.chickMove(players[num], 40)) {
+                        socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
+                    } else {
+                        socket.emit('msg', {type: 2, flag: flag, num: num});
+                        socket.emit('msg', {type: 3, flag: flag, num: num});
+                    }
                 }
             });
 
@@ -250,10 +252,11 @@ var playState = function (game) {
         socket.on('msg', function (obj) {
             switch (obj.type) {
                 case 1://方块位置变化
-                    if(obj.x != undefined){
+                    if (obj.x != undefined) {
                         players[obj.num].x = obj.x;
-                    }else{
-                    players[obj.num].y = obj.y;}
+                    } else {
+                        players[obj.num].y = obj.y;
+                    }
                     break;
                 case 5://旋转
                     chick.chickAngle(players[obj.num]);
