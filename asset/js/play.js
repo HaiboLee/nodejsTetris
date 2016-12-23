@@ -235,6 +235,7 @@ var playState = function (game) {
                         socket.emit('msg', {type: 1, flag: flag, num: num, y: players[num].y + 10});
                     } else {
                         socket.emit('destroy', {flag: flag, num: num});
+                        game.time.events.pause();
                     }
                 }
             });
@@ -251,7 +252,6 @@ var playState = function (game) {
             var ppp = players[obj.num];
             players[obj.num].destroy();
             if (obj.num == num) {
-                //game.time.events.pause();
                 chickLine = chick.chickLine(ppp);
                 if (chickLine.length != 0) {
                     socket.emit('msg', {type: 4, flag: flag, line: chickLine});
@@ -262,6 +262,7 @@ var playState = function (game) {
                 }
             }
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
+            game.time.events.resume()
         });
 
         socket.on('score', function (obj) {
@@ -279,14 +280,6 @@ var playState = function (game) {
                     break;
                 case 5://旋转
                     chick.chickAngle(players[obj.num]);
-                    break;
-                case 0://产生新方块
-                    players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.num * dd, r);
-                    break;
-                case 2://方块停止运动绘制瓦片 并检查是否得分
-                    break;
-                case 3://销毁方块
-                    //players[obj.num].destroy();
                     break;
                 case 4://得分 消除整行并下移
                     drawMap.removeLine(obj.line);
