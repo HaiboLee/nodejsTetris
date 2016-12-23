@@ -86,56 +86,64 @@ var playState = function (game) {
         });
         inputText.anchor.setTo(0, 0)
 
-        // 键盘监听
-        document.onkeydown = function (event) {
-            if (!gameover) {
-                var e = event || window.event
-                    || arguments.callee.caller.arguments[0];
-                if (e && e.keyCode == 38) { // 按 up
-                    socket.emit('msg', {type: 5, flag: flag, num: num});
-                }
-                if (e && e.keyCode == 40) { // 按 down
-                    if (chick.chickMove(players[num], 40)) {
-                        socket.emit('msg', {
-                            type: 1,
-                            flag: flag,
-                            num: num,
-                            //x: players[num].x,
-                            y: players[num].y + d
-                        });
-                    }
-                }
-                if (e && e.keyCode == 37) { // 按 left
-                    if (chick.chickMove(players[num], 37)) {
-                        socket.emit('msg', {
-                            type: 1,
-                            flag: flag,
-                            num: num,
-                            x: players[num].x - d,
-                            //y: players[num].y
-                        });
-                    }
-                }
+        var keyEvent = game.input.keyboard.addKeys({
+            left: Phaser.Keyboard.LEFT,
+            right: Phaser.Keyboard.RIGHT,
+            up: Phaser.Keyboard.UP,
+            down: Phaser.Keyboard.DOWN,
+            enter:Phaser.Keyboard.ENTER
+        });
+        keyEvent.left.onDown.add(keyDown, this);
+        keyEvent.right.onDown.add(keyDown, this);
+        keyEvent.up.onDown.add(keyDown, this);
+        keyEvent.down.onDown.add(keyDown, this);
+        keyEvent.enter.onDown.add(keyDown, this);
 
-                if (e && e.keyCode == 39) { // 按 right
-                    if (chick.chickMove(players[num], 39)) {
-                        socket.emit('msg', {
-                            type: 1,
-                            flag: flag,
-                            num: num,
-                            x: players[num].x + d,
-                            //y: players[num].y
-                        });
-                    }
-                }
-                if (e && e.keyCode == 13) {//发射弹幕
-                    //var mm = barrage.value;
-                    var mm = inputText.value;
-                    console.log(mm)
-                    if (mm != '') {
-                        socket.emit('barrage', {flag: flag, msg: mm, myx: myx});
-                    }
-                    inputText.setText('');
+        function keyDown(key) {
+            console.log(key.keyCode);
+            if (!gameover) {
+                switch (key.keyCode) {
+                    case Phaser.Keyboard.LEFT:
+                        if (chick.chickMove(players[num], key.keyCode)) {
+                            socket.emit('msg', {
+                                type: 1,
+                                flag: flag,
+                                num: num,
+                                x: players[num].x - d,
+                            });
+                        }
+                        break;
+                    case Phaser.Keyboard.RIGHT:
+                        if (chick.chickMove(players[num], key.keyCode)) {
+                            socket.emit('msg', {
+                                type: 1,
+                                flag: flag,
+                                num: num,
+                                x: players[num].x + d,
+                            });
+                        }
+                        break;
+                    case Phaser.Keyboard.DOWN:
+                        if (chick.chickMove(players[num], key.keyCode)) {
+                            socket.emit('msg', {
+                                type: 1,
+                                flag: flag,
+                                num: num,
+                                y: players[num].y + d
+                            });
+                        }
+                        break;
+                    case Phaser.Keyboard.UP:
+                        socket.emit('msg', {type: 5, flag: flag, num: num});
+                        break;
+                    case Phaser.Keyboard.ENTER:
+                        var mm = inputText.value;
+                        console.log(mm)
+                        if (mm != '') {
+                            socket.emit('barrage', {flag: flag, msg: mm, myx: myx});
+                        }
+                        inputText.setText('');
+                        break;
                 }
             }
         }
@@ -216,7 +224,6 @@ var playState = function (game) {
         })
 
         socket.on('updateRoomScore', function (obj) {
-            console.log(obj);
             roomOne.text = '第一名:\n' + obj.maxS[0];
             roomTwo.text = '第二名: \n' + obj.maxS[1];
         });
@@ -263,6 +270,7 @@ var playState = function (game) {
                 chickLine = chick.chickLine(ppp);
                 if (chickLine.length != 0) {
                     socket.emit('msg', {type: 4, flag: flag, line: chickLine});
+                    socket.emit('score', {'flag': flag, 'goal': chickLine.length});
                     chickLine.splice(0, chickLine.length);
                 }
                 if (chick.chickDie()) {
@@ -293,7 +301,6 @@ var playState = function (game) {
                 case 4://得分 消除整行并下移
                     drawMap.removeLine(obj.line);
                     drawMap.downTile(obj.line);
-                    socket.emit('score', {'flag': flag, 'goal': obj.line.length});
                     break;
                 case 6://用户离开
                     removeByValue(players, players[obj.num]);
