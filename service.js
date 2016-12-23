@@ -32,6 +32,9 @@ io.on('connection', function (socket) {
         room[f] = wr;
         io.sockets.emit('updateRoomScore', {'maxS': maxScore});
     }
+    for (var i = 0;i<waitRoom.length;i++){
+        waitRoom[i].emit('dis',{dis:roomSize-waitRoom.length})
+    }
     console.log('有新用户加入在线用户:' + onlineUsers + '房间数：' + getJsonSize(room));
     socket.on('msg', function (obj) {
         io.sockets.in(obj.flag).emit('msg', obj);
@@ -61,7 +64,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('score', function (obj) {
-        console.log(obj.goal);
+        //console.log(obj.goal);
         room[obj.flag]['score'] = room[obj.flag]['score'] + Math.pow(2, obj.goal);
         var newscore = room[obj.flag]['score'];
         io.sockets.in(obj.flag).emit('score', {score: newscore});
@@ -74,10 +77,10 @@ io.on('connection', function (socket) {
             }
             if (newscore > historyMaxScore) {
                 historyMaxScore = newscore;
-                io.sockets.emit('max', {'hismax': historyMaxScore});
+                //io.sockets.emit('max', {'hismax': historyMaxScore});
             }
             io.sockets.emit('updateRoomScore', {'hismax': historyMaxScore, 'maxS': maxScore});
-        } else if ((!newscore > maxScore[0]) && newscore > maxScore[1]) {
+        } else if ((newscore <= maxScore[0]) && newscore > maxScore[1]) {
             maxScore[1] = newscore;
             io.sockets.emit('updateRoomScore', {'hismax': historyMaxScore, 'maxS': maxScore});
         }
@@ -92,6 +95,12 @@ io.on('connection', function (socket) {
                 return;
             }
         }
+        //console.log(io.sockets.adapter.rooms);
+        //console.log(socket.id);
+        //for(var i in io.sockets.adapter.rooms){
+        //    console.log(i);
+        //    console.log(io.sockets.adapter.rooms[i])
+        //}
         var roomId;
         for (var i in room) {
             if (room[i][socket.id] != undefined) {

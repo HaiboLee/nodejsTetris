@@ -9,6 +9,7 @@ var playState = function (game) {
     var sstGroup = [];
     var myx;
     var inputText;
+    var disText;
     this.init = function () {
         createBox = new CreateBox();
 
@@ -220,7 +221,14 @@ var playState = function (game) {
             roomTwo.text = '第二名: \n' + obj.maxS[1];
         });
 
+        disText = game.add.text(game.width / 2, game.height / 2, '', sStyle);
+        disText.anchor.setTo(0.5);
+        socket.on('dis', function (obj) {
+            disText.text = "等待玩家加入,还需 " + obj.dis + " 名玩家即可开始...";
+        })
+
         socket.on('j', function (obj) { //房间创建完毕 玩家加载完毕
+            disText.destroy();
             gameover = false;
             flag = obj.flag;
             num = obj.num;
@@ -260,9 +268,10 @@ var playState = function (game) {
                 if (chick.chickDie()) {
                     socket.emit('msg', {type: 7, flag: flag});
                 }
+                game.time.events.resume();
             }
             players[obj.num] = createBox.createMyBox(obj.bid, begindd + obj.x * dd, r);
-            game.time.events.resume()
+
         });
 
         socket.on('score', function (obj) {
