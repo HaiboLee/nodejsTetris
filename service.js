@@ -11,7 +11,7 @@ app.use(express.static('./'));
 var onlineUsers = 0;
 
 var waitRoom = [];
-var roomSize = 2;
+var roomSize = 5;
 var room = {};
 var x = [0,0];
 var historyMaxScore = 0;
